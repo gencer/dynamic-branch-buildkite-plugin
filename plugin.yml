@@ -1,0 +1,33 @@
+name: dynamic-branch
+description: Introduces more complex branching in a semi-dynamic manner
+author: https://github.com/BryanJY-Wong
+configuration:
+  properties:
+    switch:
+      type: string
+    case:
+      type: object
+      properties:
+        steps:
+          type: array
+        env:
+          type: object
+    if:
+      type: object
+      properties:
+        condition: 
+          type: string
+        steps:
+          type: array
+        env:
+          type: object
+    elif:
+      type: array
+    else:
+      type: object
+      properties:
+        steps:
+          type: array
+        env:
+          type: object
+          

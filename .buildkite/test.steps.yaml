@@ -1,0 +1,62 @@
+---
+agent_transients: &agent_transients
+  # This is designed to trap and retry failures because agent lost
+  # connection. Agent exits with -1 in this case.
+  exit_status: -1
+  limit: 3
+
+common: &common
+  agents:
+  - "agent_count=8"
+  - "capable_of_building=platform"
+  - "environment=${CI_ENVIRONMENT:-production}"
+  - "platform=linux"
+  - "queue=${CI_LINUX_BUILDER_QUEUE:-v4-2020-01-07-abcdef}"
+  timeout_in_minutes: 60
+  retry:
+    automatic:
+      - <<: *agent_transients
+
+build-step: &build-step
+  steps:
+  - label: "clone-ci-and-build"
+    commands:
+    - echo "P4_STREAM is $$P4_STREAM"
+    - echo "BUILDER_QUEUE is $$BUILDER_QUEUE"
+    - chmod +x ./test.sh && ./test.sh
+    agents:
+    - "agent_count=1"
+    - "capable_of_building=something"
+    - "environment=${CI_ENVIRONMENT:-production}"
+    - "platform=windows"
+    - "queue=$$BUILDER_QUEUE"
+    timeout_in_minutes: 500 
+    retry:
+      automatic:
+        - <<: *agent_transients
+    
+steps:
+- commands:
+  - "echo \"Executing branching...\""
+  - "echo \"Exported stream is $$P4_STREAM\""
+  - "echo \"Exported queue is $$BUILDER_QUEUE\""
+  plugins:
+  # - file://C:/Projects/dynamic-branch-buildkite-plugin: # for local tests
+  - BryanJY-Wong/dynamic-branch:
+      switch: ${CI_STREAM:-main}
+      case:
+        custom:
+          <<: *build-step
+          env:
+            P4_STREAM: "$P4_STREAM"
+            BUILDER_QUEUE: ${BUILDER_QUEUE:-v4-20-06-15-abcdef}
+        stream_1:
+          <<: *build-step
+          env:
+            P4_STREAM: //game/stream_1
+            BUILDER_QUEUE: ${BUILDER_QUEUE:-v4-20-06-16-hijkl}
+        default:
+          <<: *build-step
+          env:
+            P4_STREAM: //game/main
+            BUILDER_QUEUE: ${BUILDER_QUEUE:-v4-20-06-15-mnopq}

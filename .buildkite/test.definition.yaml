@@ -1,0 +1,13 @@
+agent_queue_id: trigger-pipelines
+description: Testing stuff
+github:
+  branch_configuration:
+    - "!*"
+  default_branch: master
+  pull_request_branch_filter_configuration:
+    - "!*"
+teams:
+  - name: Everyone
+    permission: BUILD_AND_READ
+  - name: gbu/partner-eng
+    permission: MANAGE_BUILD_AND_READ
