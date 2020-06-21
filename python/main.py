@@ -64,7 +64,11 @@ def main():
       command += 'export {ENV}=\"{VALUE}\"; '.format(ENV=key, VALUE=branch['env'][key])
 
   if 'steps' in branch.keys():
-    file_path = os.environ['TMP'] + "/executed_branch.yaml" 
+    if 'TMP' in os.environ:
+      file_path = os.environ['TMP'] + "/executed_branch.yaml" 
+    else:
+      file_path = os.environ['TMPDIR='] + "/executed_branch.yaml"
+       
     with open(file_path, "w") as yaml_file:
       yaml_file.write(yaml.safe_dump(branch))
     command += 'envsubst < \'{PATH}\' | buildkite-agent pipeline upload && rm \'{PATH}\''.format(PATH=file_path)
