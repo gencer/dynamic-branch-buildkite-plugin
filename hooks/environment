@@ -4,6 +4,7 @@ set -euo pipefail
 plugin_root="${BASH_SOURCE%/*}/.."
 venv_dir="${BUILDKITE_BUILD_CHECKOUT_PATH}/../.dynamic-branch-plugin-venv"
 
+ls /usr/bin
 # Try to use explicit python3 if its installed
 python_bin="python3"
 pip_bin="pip3"
