@@ -6,12 +6,14 @@ venv_dir="${BUILDKITE_BUILD_CHECKOUT_PATH}/../.dynamic-branch-plugin-venv"
 
 # Try to use explicit python3 if its installed
 python_bin="python3"
+pip_bin="pip3"
 if ! [[ -x "$(command -v ${python_bin})" ]]; then
     python_bin="python"
+    pip_bin="pip"
 fi
 
-if [[ ! $(${python_bin} -m pip freeze) =~ "virtualenv==" ]]; then
-    ${python_bin} -m pip install "virtualenv==16.7.7"
+if [[ ! $(${python_bin} -m ${pip_bin} freeze) =~ "virtualenv==" ]]; then
+    ${python_bin} -m ${pip_bin} install "virtualenv==16.7.7"
 fi
 ${python_bin} -m virtualenv "${venv_dir}"
 
