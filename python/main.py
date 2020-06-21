@@ -45,6 +45,9 @@ def find_plugin_in_list(plugins: list):
       return element[key]
   sys.exit("Could not find the plugin in BUILDKITE_PLUGINS")
 
+def is_windows():
+  return os.name == 'nt'
+
 def main():
   plugins = json.loads(os.environ.get('BUILDKITE_PLUGINS'))
 
@@ -64,7 +67,7 @@ def main():
       command += 'export {ENV}=\"{VALUE}\"; '.format(ENV=key, VALUE=branch['env'][key])
 
   if 'steps' in branch.keys():
-    if 'TMP' in os.environ:
+    if is_windows():
       file_path = os.environ['TMP'] + "/executed_branch.yaml" 
     else:
       file_path = os.environ['TMPDIR'] + "/executed_branch.yaml"
