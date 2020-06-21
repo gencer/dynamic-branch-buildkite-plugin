@@ -10,8 +10,8 @@ if ! [[ -x "$(command -v ${python_bin})" ]]; then
     python_bin="python"
 fi
 
-if [[ ! $(${python_bin} -m ${pip_bin} freeze) =~ "virtualenv==" ]]; then
-    ${python_bin} -m ${pip_bin} install "virtualenv==16.7.7"
+if [[ ! $(${python_bin} -m pip freeze) =~ "virtualenv==" ]]; then
+    ${python_bin} -m pip install "virtualenv==16.7.7"
 fi
 ${python_bin} -m virtualenv "${venv_dir}"
 
