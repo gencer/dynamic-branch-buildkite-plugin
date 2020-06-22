@@ -1,3 +1,0 @@
-set -euo pipefail
-
-eval "${BUILDKITE_COMMAND//$'\n'/ ';' }"

@@ -23,7 +23,6 @@ build-step: &build-step
     commands:
     - echo "P4_STREAM is $$P4_STREAM"
     - echo "BUILDER_QUEUE is $$BUILDER_QUEUE"
-    - chmod +x ./test.sh && ./test.sh
     agents:
     - "agent_count=1"
     - "capable_of_building=something"
@@ -41,8 +40,9 @@ steps:
   - "echo \"Exported stream is $$P4_STREAM\""
   - "echo \"Exported queue is $$BUILDER_QUEUE\""
   plugins:
-  # - file://C:/Projects/dynamic-branch-buildkite-plugin: # for local tests
-  - BryanJY-Wong/dynamic-branch:
+  - file://C:/dev/dynamic-branch-buildkite-plugin: # for local tests
+  # - BryanJY-Wong/dynamic-branch:
+      post-command: true
       switch: ${CI_STREAM:-main}
       case:
         custom:

@@ -1,8 +1,12 @@
 name: dynamic-branch
 description: Introduces more complex branching in a semi-dynamic manner
 author: https://github.com/BryanJY-Wong
+requirements:
+  - docker
 configuration:
   properties:
+    post-command:
+      type: boolean
     switch:
       type: string
     case:

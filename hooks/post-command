@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "${BASH_SOURCE%/*}/../helper/common.sh"
+
+function main
+{
+    if [[ "${BUILDKITE_PLUGIN_DYNAMIC_BRANCH_POST_COMMAND:-}" != "true" ]]; then
+        exit 0
+    fi
+
+    local file_path="executed.steps.yaml"
+
+    build_and_run_docker > "$file_path"
+
+    upload_pipeline "$file_path" && rm "$file_path"
+}
+
+main

@@ -15,13 +15,22 @@ This becomes even more complex when multiple conditions mixing `&&` and `||` are
 
 To introduce more sophisticated branching control flows it is required to either build a separate pipeline to trigger the right branch or to implement the control flow using dynamic steps. Both of these methods results in scattering the pipeline definitions in multiple files, making the system of piplines difficult to maintain.
 
-This plugin introduces more sophisticated branching patterns in a pipeline by using dynamic steps but localizes the definition of the upoloaded step in the same steps definition of the original pipeline. 
+This plugin introduces more sophisticated branching patterns in a pipeline by using dynamic steps but localizes the definition of the uploaded step in the same steps definition of the original pipeline. The branch step may be injected into the executing pipeline either before running the current step in the environment hook or in the post-command hook. You can adjust this behaviour by setting `post-command` boolean property of the plugin. 
+
+In addition to branching new steps, this plugin also enables branching environment variables in the executing step. This is useful when the branching condition sets a large number of hard-coded environment variables that will be used by the executing step. For this use-case the `post-command` property must not be set to `true` to allow the environment hook to inject the environment variables (Remember to escape the `$` character in the command step to use this feature).
+
+### Dependency
+- Docker
 
 ### Environment Hook
-The environment hook of this plugin has a dependency on `Python` and `pip` to install the `pyyaml` module to parse the python object and generate the branch yaml to be uploaded. This hook launches a python script to parse the switch-case or if-else control flow to select the right branch to upload as the next step of the pipeline which is also defined in the same pipeline file (see example). The python script does not upload the script or inject the environment variables directly, it instead constructs a command that is then evaluated by the shell of the environment hook. This is to allow the environment variables for each branch to be injected into the current step as well as the (branch) uploaded step.
+The environment hook of this plugin has a dependency on docker. The hooks pulls a lightweight python container (python:3.8-alpine) and installs the required python modules before executing the python code. 
 
-### Command Hook
-The command hook is just a simple script that uses `eval` on the commands for the step that uses this plugin. This is to allow the commands to read the environment variables injected by the environment hook for debugging purposes. 
+If the `post-command` property is _not_ set to `true`, this hook builds a docker container that launches a python script to parse the switch-case or if-else control flow to select the right branch to upload as the next step of the pipeline. 
+
+If `post-command` is set to `true`, this hook will exit without pulling, building or running any docker containers.
+
+### Post-Command Hook
+The post-command hook behaves almost exactly as the environment hook. The only difference being that the environment variables are not inject to this step since it would be redundant as the command step has already occur. When `post-command` is not set to `true` this hook exits without doing anything.
 
 ### Switch-Case Example
 ```yaml
@@ -45,6 +54,7 @@ steps:
   - "echo \"Exported queue is $$BUILDER_QUEUE\""
   plugins:
   - BryanJY-Wong/dynamic-branch:
+      post-command: true # optional, defaults to false
       switch: ${CI_STREAM:-main}
       case:
         custom:

@@ -19,7 +19,7 @@ def evaluate_elif(dynamic_branch: dict, executed_branch: dict):
   return False
 
 def evaluate_if_else(dynamic_branch: dict):
-  branch = { 'steps':[] }
+  branch = { }
   if shell_condition(dynamic_branch['if']['condition']):
     del dynamic_branch['if']['condition']
     return dynamic_branch['if']
@@ -30,12 +30,18 @@ def evaluate_if_else(dynamic_branch: dict):
   return branch
   
 def evaluate_switch_case(dynamic_branch: dict):
-  branch = { 'steps':[] }
+  keys = dynamic_branch.keys()
+  if 'case' not in keys and 'default' not in keys:
+    exit("Missing \'case\' or \'default\' property")
+
   switch_val = dynamic_branch['switch']
+  branch = { }
+
   if switch_val in dynamic_branch['case'].keys():
     branch = dynamic_branch['case'][switch_val]
   elif 'default' in dynamic_branch['case'].keys():
     branch = dynamic_branch['case']['default']
+
   return branch
 
 def find_plugin_in_list(plugins: list):
@@ -44,9 +50,6 @@ def find_plugin_in_list(plugins: list):
     if 'dynamic-branch' in key:
       return element[key]
   sys.exit("Could not find the plugin in BUILDKITE_PLUGINS")
-
-def is_windows():
-  return os.name == 'nt'
 
 def main():
   plugins = json.loads(os.environ.get('BUILDKITE_PLUGINS'))
@@ -58,28 +61,13 @@ def main():
 
   if 'switch' in dynamic_branch.keys():
     branch = evaluate_switch_case(dynamic_branch)
-  else:
+  elif 'if' in dynamic_branch.keys():
     branch = evaluate_if_else(dynamic_branch)
-
-  command = ''
-  if 'env' in branch.keys():
-    for key in branch['env']:
-      command += 'export {ENV}=\"{VALUE}\"; '.format(ENV=key, VALUE=branch['env'][key])
-
-  if 'steps' in branch.keys():
-    if is_windows():
-      file_path = os.environ['TMP'] + "/executed_branch.yaml" 
-    else:
-      file_path = os.environ['TMPDIR'] + "/executed_branch.yaml"
-
-    with open(file_path, "w") as yaml_file:
-      yaml_file.write(yaml.safe_dump(branch))
-    command += 'envsubst < \'{PATH}\' | buildkite-agent pipeline upload && rm \'{PATH}\''.format(PATH=file_path)
   else:
-    command += 'echo \"Warning: No steps found\";'
+    exit("Missing \'if\'' or \'switch\' property")
 
-  # eval command in environment to inject env vars into the current BK step
-  print(command)
+  if 'steps' in branch.keys() or 'env' in branch.keys():
+    print(yaml.safe_dump(branch))
 
 if __name__ == "__main__":
     main()

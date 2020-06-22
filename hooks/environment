@@ -1,27 +1,43 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-plugin_root="${BASH_SOURCE%/*}/.."
-venv_dir="${BUILDKITE_BUILD_CHECKOUT_PATH}/../.dynamic-branch-plugin-venv"
+source "${BASH_SOURCE%/*}/../helper/common.sh"
 
-# Try to use explicit python3 if its installed
-python_bin="python3"
-if ! [[ -x "$(command -v ${python_bin})" ]]; then
-    python_bin="python"
-fi
+function get_env_from_yaml
+{
+    local file="$1"
+    local line=""
+    local env_flag="false"
+    cat "$file" | while read -r line; do
+        line="$(echo "${line}" | sed 's/[[:space:]]*$//')"
+        if [[ "$line" == "env:" ]]; then
+            env_flag="true"
+            continue
+        fi
 
-if [[ ! $(${python_bin} -m pip freeze) =~ "virtualenv==" ]]; then
-    ${python_bin} -m pip install "virtualenv==16.7.7"
-fi
-${python_bin} -m virtualenv "${venv_dir}"
+        if [[ "$env_flag" == "true" && "$line" =~ ^[A-Za-z].*:$ ]]; then
+            break;
+        fi
+        line="$(echo "${line}" | sed "s/^[[:space:]]*\([^:]*\): \(.*\)/\1='\2'/")"
+        echo "$line"
+    done
+}
 
-platform=$(${python_bin} -c "import platform; print(platform.system())")
-if [[ "${platform}" == "Windows" ]]; then
-    venv_bin="${venv_dir}/Scripts"
-else
-    venv_bin="${venv_dir}/bin"
-fi
+function main
+{
+    if [[ "${BUILDKITE_PLUGIN_DYNAMIC_BRANCH_POST_COMMAND:-}" == "true" ]]; then
+        exit 0
+    fi
 
-"${venv_bin}/python" -m pip install -r "${plugin_root}/python/requirements.txt"
+    local file_path="executed.steps.yaml"
 
-eval "$("${venv_bin}/python" "${plugin_root}/python/main.py")"
+    build_and_run_docker > "$file_path"
+
+    set -a
+    eval $(get_env_from_yaml "$file_path")
+    set +a
+
+    upload_pipeline "$file_path" && rm "$file_path"
+}
+
+main
