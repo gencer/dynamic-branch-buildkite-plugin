@@ -9,7 +9,7 @@ function main
         exit 0
     fi
 
-    local file_path="executed.steps.yaml"
+    local file_path="${BUILDKITE_BUILD_CHECKOUT_PATH}/.buildkite/executed.steps.yaml"
 
     build_and_run_docker > "$file_path"
 
