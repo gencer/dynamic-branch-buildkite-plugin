@@ -31,7 +31,7 @@ function main
 
     local file_path="${BUILDKITE_BUILD_CHECKOUT_PATH}/.buildkite/executed.steps.yaml"
 
-    build_and_run_docker > "$file_path"
+    build_and_run_docker "${BASH_SOURCE%/*}/../Dockerfile" > "$file_path"
 
     set -a
     eval $(get_env_from_yaml "$file_path")
