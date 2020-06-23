@@ -35,6 +35,5 @@ function run_plugin
 
     if [[ -f "$EXE_BRANCH" ]]; then
         upload_pipeline "$EXE_BRANCH"
-        rm "$EXE_BRANCH"
     fi
 }
