@@ -14,7 +14,9 @@ function main
     eval $(build_and_run_docker "${plugin_root}/Dockerfile" "${plugin_root}/.buildkite")
     set +a
 
-    upload_pipeline "$EXE_BRANCH" && rm "$EXE_BRANCH"
+    if [[ -f "$EXE_BRANCH" ]]; then
+        upload_pipeline "$EXE_BRANCH" && rm "$EXE_BRANCH"
+    fi
 }
 
 main
