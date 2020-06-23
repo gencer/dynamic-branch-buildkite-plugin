@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source "${BASH_SOURCE%/*}/../helper/common.sh"
+plugin_root="${BASH_SOURCE%/*}/.."
+source "${plugin_root}/helper/common.sh"
 
 function get_env_from_yaml
 {
@@ -29,9 +30,9 @@ function main
         exit 0
     fi
 
-    local file_path="$(mktemp)"
+    local file_path="${plugin_root}/executed.steps.yaml"
 
-    build_and_run_docker "${BASH_SOURCE%/*}/../Dockerfile" > "$file_path"
+    build_and_run_docker "${plugin_root}/Dockerfile" > "$file_path"
 
     set -a
     eval $(get_env_from_yaml "$file_path")
