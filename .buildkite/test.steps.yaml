@@ -43,7 +43,8 @@ steps:
   plugins:
   - file://C:/dev/dynamic-branch-buildkite-plugin: # for local tests
   # - BryanJY-Wong/dynamic-branch:
-      post-command: true
+      docker-tag: bryan2402/bk-plugins:dynamic-branch # optional, this is default
+      post-command: true # optional, default is false
       switch: ${CI_STREAM:-main}
       case:
         custom:

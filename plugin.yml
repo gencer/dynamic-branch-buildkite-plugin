@@ -5,6 +5,8 @@ requirements:
   - docker
 configuration:
   properties:
+    docker-tag:
+      type: string
     post-command:
       type: boolean
     switch:

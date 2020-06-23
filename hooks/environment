@@ -4,39 +4,13 @@ set -euo pipefail
 plugin_root="${BASH_SOURCE%/*}/.."
 source "${plugin_root}/helper/common.sh"
 
-function get_env_from_yaml
-{
-    local file="$1"
-    local line=""
-    local env_flag="false"
-    cat "$file" | while read -r line; do
-        line="$(echo "${line}" | sed 's/[[:space:]]*$//')"
-        if [[ "$line" == "env:" ]]; then
-            env_flag="true"
-            continue
-        fi
-
-        if [[ "$env_flag" == "true" && "$line" =~ ^[A-Za-z].*:$ ]]; then
-            break;
-        fi
-        line="$(echo "${line}" | sed "s/^[[:space:]]*\([^:]*\): \(.*\)/\1='\2'/")"
-        echo "$line"
-    done
-}
-
 function main
 {
     if [[ "${BUILDKITE_PLUGIN_DYNAMIC_BRANCH_POST_COMMAND:-}" == "true" ]]; then
         exit 0
     fi
 
-    set -a
-    eval $(build_and_run_docker "${plugin_root}/Dockerfile" "${plugin_root}/.buildkite")
-    set +a
-
-    if [[ -f "$EXE_BRANCH" ]]; then
-        upload_pipeline "$EXE_BRANCH" && rm "$EXE_BRANCH"
-    fi
+    run_plugin "$plugin_root"
 }
 
 main

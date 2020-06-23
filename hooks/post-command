@@ -10,13 +10,7 @@ function main
         exit 0
     fi
 
-    set -a
-    eval $(build_and_run_docker "${plugin_root}/Dockerfile" "${plugin_root}/.buildkite")
-    set +a
-
-    if [[ -f "$EXE_BRANCH" ]]; then
-        upload_pipeline "$EXE_BRANCH" && rm "$EXE_BRANCH"
-    fi
+    run_plugin "$plugin_root"
 }
 
 main
