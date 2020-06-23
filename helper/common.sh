@@ -21,6 +21,7 @@ function upload_pipeline
 {
 	if grep -q "^steps:[[:space:]]*$" "$EXE_BRANCH"; then
         echo "--- Uploaded" && cat "$EXE_BRANCH"
+        echo
         buildkite-agent pipeline upload "$EXE_BRANCH"
     fi
 }
@@ -33,6 +34,7 @@ function run_plugin
     set +a
 
     if [[ -f "$EXE_BRANCH" ]]; then
-        upload_pipeline "$EXE_BRANCH" && rm "$EXE_BRANCH"
+        upload_pipeline "$EXE_BRANCH"
+        rm "$EXE_BRANCH"
     fi
 }
