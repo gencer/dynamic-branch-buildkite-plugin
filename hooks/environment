@@ -30,15 +30,11 @@ function main
         exit 0
     fi
 
-    local file_path="${plugin_root}/executed.steps.yaml"
-
-    build_and_run_docker "${plugin_root}/Dockerfile" > "$file_path"
-
     set -a
-    eval $(get_env_from_yaml "$file_path")
+    eval $(build_and_run_docker "${plugin_root}/Dockerfile" "${plugin_root}/.buildkite")
     set +a
 
-    upload_pipeline "$file_path" && rm "$file_path"
+    upload_pipeline "$EXE_BRANCH" && rm "$EXE_BRANCH"
 }
 
 main

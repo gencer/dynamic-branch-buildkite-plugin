@@ -66,8 +66,14 @@ def main():
   else:
     exit("Missing \'if\'' or \'switch\' property")
 
-  if 'steps' in branch.keys() or 'env' in branch.keys():
-    print(yaml.safe_dump(branch))
+  if 'steps' in branch.keys():
+    with open('/bk/executed.steps.yaml', 'w') as the_file:
+      the_file.write(yaml.safe_dump(branch))
+    print('EXE_BRANCH=\'{HOST_DIR}/executed.steps.yaml\''.format(HOST_DIR=os.environ['BK_DIR']))
+
+  if 'env' in branch.keys():
+    for key in branch['env']:
+      print('{ENV}=\'{VALUE}\''.format(ENV=key, VALUE=branch['env'][key]))
 
 if __name__ == "__main__":
     main()

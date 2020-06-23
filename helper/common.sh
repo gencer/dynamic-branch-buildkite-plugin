@@ -4,10 +4,11 @@ function build_and_run_docker
 {
 	local dockerfile="$1"
 	local docker_tag="dynamic-branch"
+	local bk_dir="$2" 
 
     docker build -f "$dockerfile" -t "$docker_tag" . >&2
 
-    docker run $(printenv | sed -n "s/\(^BUILDKITE[^=]*\).*/--env \1/gp") -t "$docker_tag"
+    docker run $(printenv | sed -n "s/\(^BUILDKITE[^=]*\).*/--env \1/gp") --env BK_DIR="$bk_dir" -v "${bk_dir}:/bk" -t "$docker_tag"
 }
 
 function upload_pipeline
