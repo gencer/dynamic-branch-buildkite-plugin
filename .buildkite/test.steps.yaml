@@ -23,6 +23,7 @@ build-step: &build-step
     commands:
     - echo "P4_STREAM is $$P4_STREAM"
     - echo "BUILDER_QUEUE is $$BUILDER_QUEUE"
+    - ./test.sh
     agents:
     - "agent_count=1"
     - "capable_of_building=something"
